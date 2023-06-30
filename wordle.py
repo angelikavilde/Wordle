@@ -2,6 +2,8 @@ import json, string, random
 from rich.prompt import Prompt
 from rich.console import Console
 from rich.table import Table
+from rich.text import Text
+from rich.style import Style
 
 console = Console()
 
@@ -14,34 +16,31 @@ def generate_random_word(word_data: list[dict]) -> list:
     i = random.randint(0,len(word_data))
     return word_data[i]
 
-def show_game(word: list[str], letters_exist: set[str], guess: str) -> Table:
+def show_game(word: list[list[str]], letters_exist: list[set[str]], guess_list: list[str]) -> Table:
     
-    table = Table(show_header=False, show_lines=True)
+    table = Table(title="Wordle", show_header=False, show_lines=True)
 
     for _ in range (5):
         table.add_column()
 
-    table.add_row(guess[0],guess[1],guess[2],guess[3],guess[4])
-
-    for indx, cell in enumerate(table.columns):
-        if guess[indx] in letters_exist and guess[indx] not in word:
-            cell.style = "yellow"
-        if word[indx]:
-            cell.style = "green"
+    for i,guess in enumerate(guess_list):
+        colour_list = colour(guess, letters_exist[i], word[i])
+        table.add_row(Text(guess[0],Style(color=colour_list[0])),Text(guess[1],\
+        Style(color=colour_list[1])),Text(guess[2],Style(color=colour_list[2])),Text(guess[3]\
+        ,Style(color=colour_list[3])),Text(guess[4],Style(color=colour_list[4])))
 
     return table
 
-def combine_tables(table_list:list[Table]) -> Table:
-    table = Table(title="Wordle", show_header=False, show_lines=True)
-    for _ in range(5):
-        table.add_column()
-    for t in table_list:
-        row_cells = []
-        for col in t.columns:
-            cel_list = list(col.cells)
-            row_cells.append(str(cel_list[0]))
-        table.add_row(*row_cells)
-    return table
+def colour(guess: str, letters_exist: set[str], word: list[str]) -> list:
+    colour_list = []
+    for indx,letter in enumerate(guess):
+        if letter in letters_exist:
+            colour_list.append("yellow")
+        elif word[indx]:
+            colour_list.append("green")
+        else:
+            colour_list.append("blue")
+    return colour_list
 
 def guess_word():
     return input("Word guess: ")
@@ -59,7 +58,6 @@ def check_word(guess: str) -> bool:
 def check_letters(answer: str, guess:str) -> tuple[list[str],set]:
     word = ["","","","",""]
     letters_exist = set()
-    print(answer)
     for indx,letter in enumerate(guess):
         if letter in answer:
             if answer[indx] == guess[indx]:
@@ -75,30 +73,31 @@ def confirm_answer(answer: str, guess:list[str]) -> bool:
 
 def play(word_data:list[dict]) -> None:
     random_word_dict = generate_random_word(word_data)
-    random_word_dict = {"curls": "A piece or lock of curling hair; a ringlet."}
+    #random_word_dict = {"curls": "A piece or lock of curling hair; a ringlet."}
     random_word = list(random_word_dict.keys())[0]
     guesses = 0
     console.print("*", style="green", end=" - Correct place and letter\n")
     console.print("*", style="yellow", end=" - Correct letter only\n")
-    guess = []
-    table_list = []
+    currently_guessed, letters_exist, guess_list = [], [], []
     while guesses < 5:
-        guess = guess_word()
-        print(guesses)
-        if not check_word(guess):
+        if guesses == 4:
+            clue = input("Would you like a clue: ")
+            if "n" not in clue:
+                print(list(random_word_dict.values())[0])
+        possible_guess = guess_word()
+        if not check_word(possible_guess):
             print("Wrong input format")
             continue
-        word, letters_exist = check_letters(random_word, guess)
-        if confirm_answer(random_word, word):
-            table_list.append(show_game(word, letters_exist, guess))
-            table1 = combine_tables(table_list)
-            console.print(table1)
+        guess_list.append(possible_guess)
+        one_currently_guessed, one_letters_exist = check_letters(random_word, guess_list[guesses])
+        currently_guessed.append(one_currently_guessed)
+        letters_exist.append(one_letters_exist)
+        table = (show_game(currently_guessed, letters_exist, guess_list))
+        console.print(table)
+        if confirm_answer(random_word, currently_guessed[-1]):
             print("You win!")
             return
         else:
-            table_list.append((show_game(word, letters_exist, guess)))
-            table1 = combine_tables(table_list)
-            console.print(table1)
             guesses += 1
     print("Game over!")
     print(f"The correct word was {random_word}")
@@ -111,5 +110,5 @@ if __name__ == "__main__":
         play(word_data)
         print("Thank you for playing.")
         play_game = input("Would you like to play again?")
-        if "n" or "q" in play_game:
+        if "n" in play_game or "q" in play_game or "f" in play_game:
             game = False
