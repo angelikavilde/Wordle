@@ -39,7 +39,7 @@ def colour(guess: str, letters_exist: set[str], word: list[str]) -> list:
         elif word[indx]:
             colour_list.append("green")
         else:
-            colour_list.append("blue")
+            colour_list.append("white")
     return colour_list
 
 def guess_word():
