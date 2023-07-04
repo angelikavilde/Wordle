@@ -82,7 +82,8 @@ def check_letters(answer: str, guess:str) -> tuple[list[str],set]:
             if answer[indx] == guess[indx]:
                 word[indx] = letter
             else:
-                letters_exist.add(letter)
+                if answer.count(letter) > 1 or not letter in word:
+                    letters_exist.add(letter)
     return word, letters_exist
 
 def confirm_answer(answer: str, guess:list[str]) -> bool:
