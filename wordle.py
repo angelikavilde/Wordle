@@ -62,14 +62,14 @@ def check_word(guess: str) -> bool:
             return False
     return True
 
-def clue(word: dict) -> None:
+def clue(clue: str) -> None:
     """Function to display a clue
     if user chose to do so"""
     text = Text("Would you like a clue: ", style="bright_magenta")
-    clue = console.input(text)
-    if "n" not in clue:
-        word = "Clue: " + word
-        console.print(word)
+    choice = console.input(text)
+    if "n" not in choice:
+        clue = "Clue: " + clue
+        console.print(clue)
 
 def check_letters(answer: str, guess:str) -> tuple[list[str],set]:
     """Function that returns a tuple of the list currently correctly
