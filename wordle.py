@@ -62,7 +62,7 @@ def check_word(guess: str) -> bool:
             return False
     return True
 
-def clue(clue: str) -> None:
+def get_clue(clue: str) -> None:
     """Function to display a clue
     if user chose to do so"""
     text = Text("Would you like a clue: ", style="bright_magenta")
@@ -104,7 +104,7 @@ def play(word_data:list[dict]) -> None:
     currently_guessed, letters_exist, guess_list = [], [], []
     while guesses < 6:
         if guesses == 5:
-            clue(list(random_word_dict.values())[0])
+            get_clue(list(random_word_dict.values())[0])
         possible_guess = guess_word()
         if not check_word(possible_guess):
             console.print("Wrong input format", style = "red")
