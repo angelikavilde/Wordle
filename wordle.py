@@ -40,9 +40,9 @@ def colour(guess: str, letters_exist: set[str], word: list[str]) -> list:
     colour_list = []
     for indx,letter in enumerate(guess):
         if word[indx]:
-            colour_list.append("green")
+            colour_list.append("bright_green")
         elif letter in letters_exist:
-            colour_list.append("yellow")
+            colour_list.append("bright_yellow")
         else:
             colour_list.append("white")
     return colour_list
@@ -81,9 +81,10 @@ def check_letters(answer: str, guess:str) -> tuple[list[str],set]:
         if letter in answer:
             if answer[indx] == guess[indx]:
                 word[indx] = letter
-            else:
-                if answer.count(letter) > 1 or not letter in word:
-                    letters_exist.add(letter)
+    for letter in guess:
+        if letter in answer:
+            if answer.count(letter) > word.count(letter) or not letter in word:
+                letters_exist.add(letter)
     return word, letters_exist
 
 def confirm_answer(answer: str, guess:list[str]) -> bool:
@@ -99,8 +100,8 @@ def play(word_data:list[dict]) -> None:
     random_word_dict = generate_random_word(word_data)
     random_word = list(random_word_dict.keys())[0]
     guesses = 0
-    console.print("*", style="green", end=" - Correct place and letter\n")
-    console.print("*", style="yellow", end=" - Correct letter only\n")
+    console.print("*", style="bright_green", end=" - Correct place and letter\n")
+    console.print("*", style="bright_yellow", end=" - Correct letter only\n")
     currently_guessed, letters_exist, guess_list = [], [], []
     while guesses < 6:
         if guesses == 5:
@@ -109,7 +110,7 @@ def play(word_data:list[dict]) -> None:
         if not check_word(possible_guess):
             console.print("Wrong input format", style = "red")
             continue
-        guess_list.append(possible_guess)
+        guess_list.append(possible_guess.lower())
         one_currently_guessed, one_letters_exist = check_letters(random_word, guess_list[guesses])
         currently_guessed.append(one_currently_guessed)
         letters_exist.append(one_letters_exist)
